@@ -1,10 +1,10 @@
 {
   "name": "backend-99food-pdvseven",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "release": "release-it --ci --increment patch",
+    "release": "release-it",
     "start": "node src/main.js",
     "dev": "nodemon src/main.js"
   },
@@ -28,11 +28,8 @@
     "release-it": "^2.4.3"
   },
   "release-it": {
-    "ci": true,
     "git": {
-      "commitMessage": "chore: release v${version}",
-      "tagName": "v${version}",
-      "requireCleanWorkingDir": false
+      "commitMessage": "chore: release v${version}"
     },
     "github": {
       "release": false
