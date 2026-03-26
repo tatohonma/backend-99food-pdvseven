@@ -76,7 +76,7 @@ export const adicionarCliente = async ({ pedido }) => {
       valor: pedido.order_info.receive_address.uid,
     });
 
-    console.log("✅ Novo cliente adicionado");
+    console.log("✅ novo cliente adicionado");
     return cliente.IDCliente;
   }
 
