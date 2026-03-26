@@ -8,8 +8,14 @@ import {
 } from "../repositories/pedido.js";
 import { formatarTicket } from "../services/ticket.js";
 import { atualizarValorTag } from "../repositories/tag.js";
+import { env } from "../config/env.js";
 
 export const webhookController = async (req, res) => {
+  const token = req.query.token;
+
+  if (token !== env.WEB_HOOK_SECRET)
+    return res.status(401).send("Unauthorized");
+
   if (req.body.type === "orderNew") {
     try {
       const pedido = req.body.data;

@@ -37,12 +37,6 @@ export const adicionarPedido = async (pedido, idCliente) => {
     // IDRetornoSatVenda
   });
 
-  console.log(
-    "✅ Pedido adicionado com sucesso.",
-    pedido.order_info.order_id,
-    typeof pedido.order_info.order_id,
-  );
-
   const tags = [
     { chave: "99Food-orderId", valor: pedido.order_info.order_id },
     { chave: "99Food-shortReference", valor: pedido.order_info.order_index },
@@ -58,7 +52,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
     });
   }
 
-  console.log("✅ Tags do pedido adicionadas com sucesso.");
+  console.log("✅ tags do pedido adicionadas com sucesso.");
   return result;
 };
 
