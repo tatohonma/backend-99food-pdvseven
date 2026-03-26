@@ -26,7 +26,7 @@ app.listen(env.PORT, async () => {
     console.log("iniciando serviço...");
     await db.verifyConnection();
     await setup();
-    console.log(`integração PDV7 e 99Food disponível na porta ${env.PORT}`);
+    console.log(`integração PDV7 e 99Food disponível na porta: ${env.PORT}`);
   } catch (error) {
     console.error("erro ao iniciar serviço:", error);
   }
