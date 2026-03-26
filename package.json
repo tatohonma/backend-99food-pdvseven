@@ -1,0 +1,41 @@
+{
+  "name": "backend-99food-pdvseven",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "release": "release-it",
+    "start": "node src/main.js",
+    "dev": "nodemon src/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "json-bigint": "^1.0.0",
+    "morgan": "^1.10.0",
+    "mssql": "^11.0.1",
+    "uuid": "^10.0.0",
+    "zod": "^4.3.6",
+    "zod-validation-error": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "release-it": "^2.4.3"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}"
+    },
+    "github": {
+      "release": false
+    },
+    "npm": {
+      "publish": false
+    }
+  }
+}
