@@ -1,6 +1,6 @@
 {
   "name": "backend-99food-pdvseven",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4",
-    "release-it": "^2.4.3"
+    "release-it": "^17.11.0"
   },
   "release-it": {
     "git": {
