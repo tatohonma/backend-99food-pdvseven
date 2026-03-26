@@ -25,7 +25,7 @@ export const criarPedido = async ({
     .input("IDCliente", sql.Int, idCliente)
     .input("IDTipoPedido", sql.Int, 30)
     .input("IDStatusPedido", sql.Int, 60)
-    .input("IDTipoDesconto", sql.Int, idTipoDesconto)
+    .input("IDTipoDesconto", sql.Int, valorDesconto > 0 ? idTipoDesconto : null)
     .input("IDTaxaEntrega", sql.Int, idTaxaEntrega)
     .input("GUIDIdentificacao", sql.NVarChar(50), guid)
     .input("GUIDMovimentacao", sql.NVarChar(50), uuidv4())
