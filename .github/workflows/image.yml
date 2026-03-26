@@ -36,7 +36,7 @@ jobs:
       - name: Construir e publicar imagem
         run: |
           docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.GH_PAT }} ghcr.io
-          docker build -f ./infra/docker/Dockerfile.prod --build-arg SERVICE_VERSION=${{ env.TAG }} --tag ghcr.io/tatohonma/backend-99food-pdvseven:${{ env.TAG }} .
+          docker build -f ./infra/docker/dockerfile.prod --build-arg SERVICE_VERSION=${{ env.TAG }} --tag ghcr.io/tatohonma/backend-99food-pdvseven:${{ env.TAG }} .
           docker push ghcr.io/tatohonma/backend-99food-pdvseven:${{ env.TAG }}
 
         env:
