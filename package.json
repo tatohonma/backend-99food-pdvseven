@@ -4,7 +4,7 @@
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "release": "release-it --ci",
+    "release": "release-it --ci --increment patch",
     "start": "node src/main.js",
     "dev": "nodemon src/main.js"
   },
@@ -28,8 +28,11 @@
     "release-it": "^2.4.3"
   },
   "release-it": {
+    "ci": true,
     "git": {
-      "commitMessage": "chore: release v${version}"
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": false
     },
     "github": {
       "release": false
