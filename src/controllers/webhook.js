@@ -1,5 +1,8 @@
 import { adicionarCliente } from "../services/cliente.js";
-import { adicionarPedido } from "../services/pedido.js";
+import {
+  adicionarPedido,
+  verificarExistenciaPedido,
+} from "../services/pedido.js";
 import { adicionarProdutos } from "../services/produto.js";
 import { adicionarPagamento } from "../services/pagamento.js";
 import {
@@ -7,7 +10,10 @@ import {
   atualizarStatusPedido,
 } from "../repositories/pedido.js";
 import { formatarTicket } from "../services/ticket.js";
-import { atualizarValorTag } from "../repositories/tag.js";
+import {
+  atualizarValorTag,
+  procurarTagChaveValor,
+} from "../repositories/tag.js";
 import { env } from "../config/env.js";
 
 export const webhookController = async (req, res) => {
@@ -19,6 +25,15 @@ export const webhookController = async (req, res) => {
   if (req.body.type === "orderNew") {
     try {
       const pedido = req.body.data;
+
+      const pedidoExistente = await verificarExistenciaPedido({
+        orderId: pedido.order_id,
+      });
+
+      if (pedidoExistente) {
+        console.log(`Pedido ${pedido.order_id} já registrado.`);
+        return res.send({ errno: 0, errmsg: "ok" });
+      }
 
       console.log(`Adicionar pedido ${pedido.order_id}\n`);
       const clientId = await adicionarCliente({ pedido });

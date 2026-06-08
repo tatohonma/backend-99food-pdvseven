@@ -2,7 +2,10 @@ import { criarPedido } from "../repositories/pedido.js";
 import { configuracoes } from "../config/pdv7.js";
 import { v4 as uuidv4 } from "uuid";
 import { atualizarValorTag, criarTag } from "../repositories/tag.js";
-import { procurarTagGUIDChave } from "../repositories/tag.js";
+import {
+  procurarTagGUIDChave,
+  procurarTagChaveValor,
+} from "../repositories/tag.js";
 import { api } from "../config/axios.js";
 
 export const adicionarPedido = async (pedido, idCliente) => {
@@ -157,4 +160,11 @@ export const sincronisarStatus = async ({ pedido }) => {
   }
 
   return;
+};
+
+export const verificarExistenciaPedido = async ({ orderId }) => {
+  return await procurarTagChaveValor({
+    chave: "99Food-orderId",
+    valor: orderId,
+  });
 };
