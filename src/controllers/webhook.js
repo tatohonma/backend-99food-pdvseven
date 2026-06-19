@@ -15,6 +15,7 @@ import {
   procurarTagChaveValor,
 } from "../repositories/tag.js";
 import { env } from "../config/env.js";
+import { api } from "../config/axios.js";
 
 export const webhookController = async (req, res) => {
   const token = req.query.token;
@@ -22,10 +23,18 @@ export const webhookController = async (req, res) => {
   if (token !== env.WEB_HOOK_SECRET)
     return res.status(401).send("Unauthorized");
 
+  // if (req.body.app_id !== env.APP_ID)
+  //   return res.status(401).send("Unauthorized");
+
   if (req.body.type === "orderNew") {
     try {
-      const pedido = req.body.data;
+      const response = await api.get("/order/order/detail", {
+        params: { order_id: req.body.data.order_id },
+      });
 
+      console.log("Order", JSON.stringify(response.data, null, 2));
+
+      const pedido = response.data.data;
       const pedidoExistente = await verificarExistenciaPedido({
         orderId: pedido.order_id,
       });
@@ -41,7 +50,7 @@ export const webhookController = async (req, res) => {
 
       await adicionarProdutos({
         idPedido: insertedId,
-        produtos: pedido.order_info.order_items,
+        produtos: pedido.order_items,
       });
 
       const pagamento = await adicionarPagamento({

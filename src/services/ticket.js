@@ -1,16 +1,16 @@
 export const formatarTicket = ({ pedido, pagamento }) => {
-  let ticket = ` *** 99Food #${pedido.order_info.remark} ***\r\n`;
-  ticket += `Data do Pedido: ${new Date(pedido.order_info.create_time).toLocaleString()}\r\n`;
-  ticket += `Cliente: ${pedido.order_info.receive_address.first_name}\r\n`;
-  ticket += `Telefone: (${pedido.order_info.receive_address.phone.substring(0, 2)}) ${pedido.order_info.receive_address.phone.substring(2)}\r\n`;
-  ticket += `Endereço: ${pedido.order_info.receive_address.poi_address}\r\n`;
-  ticket += `Cidade: ${pedido.order_info.receive_address.city} - ${pedido.order_info.receive_address.state}\r\n`;
-  ticket += `CEP: ${pedido.order_info.receive_address.postal_code}\r\n`;
-  ticket += `Referência: ${pedido.order_info.receive_address.reference}\r\n`;
-  ticket += `Complemento: ${pedido.order_info.receive_address.complement}\r\n\r\n`;
+  let ticket = ` *** 99Food #${pedido.remark} ***\r\n`;
+  ticket += `Data do Pedido: ${new Date(pedido.create_time).toLocaleString()}\r\n`;
+  ticket += `Cliente: ${pedido.receive_address.first_name}\r\n`;
+  ticket += `Telefone: (${pedido.receive_address.phone.substring(0, 2)}) ${pedido.receive_address.phone.substring(2)}\r\n`;
+  ticket += `Endereço: ${pedido.receive_address.poi_address}\r\n`;
+  ticket += `Cidade: ${pedido.receive_address.city} - ${pedido.receive_address.state}\r\n`;
+  ticket += `CEP: ${pedido.receive_address.postal_code}\r\n`;
+  ticket += `Referência: ${pedido.receive_address.reference}\r\n`;
+  ticket += `Complemento: ${pedido.receive_address.complement}\r\n\r\n`;
 
   ticket += `Itens:\r\n`;
-  pedido.order_info.order_items.forEach((item) => {
+  pedido.order_items.forEach((item) => {
     ticket += `  - ${item.amount} x ${item.name}: R$ ${item.total_price / 100}\r\n`;
     if (item.remark) ticket += `    Observações: ${item.remark}\r\n`;
 
@@ -22,10 +22,10 @@ export const formatarTicket = ({ pedido, pagamento }) => {
   });
 
   // ticket += `\r\nDescontos:\r\n`;
-  // pedido.order_info.discounts.forEach((discount) => {
+  // pedido.discounts.forEach((discount) => {
   //   ticket += `  - ${discount.tag}: R$ ${discount.amount.toFixed(2)}\r\n`;
   // });
-  // ticket += `\r\nTaxa de Entrega: R$ ${pedido.order_info.deliveryFee.toFixed(2)}\r\n`;
+  // ticket += `\r\nTaxa de Entrega: R$ ${pedido.deliveryFee.toFixed(2)}\r\n`;
   //
 
   if (pagamento.value > 0) {
@@ -33,7 +33,7 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     ticket += `  - ${pagamento.value / 100}`;
   }
 
-  ticket += `\r\nTotal: R$ ${pedido.order_info.price.order_price / 100}\r\n`;
+  ticket += `\r\nTotal: R$ ${pedido.price.order_price / 100}\r\n`;
 
   return ticket;
 };

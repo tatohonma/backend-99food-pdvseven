@@ -14,7 +14,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const idOrigemPedido = configuracoes.origemPedido.IDOrigemPedido;
   const idEntregador = configuracoes.entregador.IDEntregador;
 
-  const valorDesconto = pedido.order_info.price.items_discount;
+  const valorDesconto = pedido.price.items_discount;
 
   const observacoes = "";
   const aplicarDesconto = valorDesconto > 0 ? 1 : 0;
@@ -35,16 +35,16 @@ export const adicionarPedido = async (pedido, idCliente) => {
     observacaoCupom,
     valorDesconto,
     observacoes,
-    valorTotal: pedido.order_info.price.order_price / 100,
-    valorEntrega: pedido.order_info.store_charged_delivery_price / 100,
+    valorTotal: pedido.price.order_price / 100,
+    valorEntrega: pedido.store_charged_delivery_price / 100,
     // IDRetornoSatVenda
   });
 
   const tags = [
-    { chave: "99Food-orderId", valor: pedido.order_info.order_id },
-    { chave: "99Food-shortReference", valor: pedido.order_info.order_index },
-    { chave: "99Food-Type", valor: pedido.order_info.delivery_type },
-    { chave: "99Food-status", valor: pedido.order_info.status },
+    { chave: "99Food-orderId", valor: pedido.order_id },
+    { chave: "99Food-shortReference", valor: pedido.order_index },
+    { chave: "99Food-Type", valor: pedido.delivery_type },
+    { chave: "99Food-status", valor: pedido.status },
   ];
 
   for (const tag of tags) {
@@ -60,6 +60,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
 };
 
 export const sincronisarStatus = async ({ pedido }) => {
+  console.log("Sincronizando pedidods");
   // 100	Order created
   // 200	Order accepted (The store sent confirmation)
   // 400	The rider took the order for delivery
@@ -146,6 +147,8 @@ export const sincronisarStatus = async ({ pedido }) => {
       await api.post("/order/order/cancel", null, {
         params: {
           order_id: tag.Valor,
+          reason_id: 1080,
+          reason: "Cancelado pelo PDV",
         },
       });
 

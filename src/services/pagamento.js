@@ -9,19 +9,18 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
   };
 
   const valorDoPagamento =
-    pedido.order_info.pay_channel === 150
-      ? pedido.order_info.change_for ||
-        pedido.order_info.price.real_pay_price ||
-        pedido.order_info.price.order_price
-      : pedido.order_info.price.real_pay_price ||
-        pedido.order_info.price.order_price;
+    pedido.pay_channel === 150
+      ? pedido.change_for ||
+        pedido.price.real_pay_price ||
+        pedido.price.order_price
+      : pedido.price.real_pay_price || pedido.price.order_price;
 
   await criarPedidoPagamento({
     idPedido,
     valorDoPagamento: valorDoPagamento / 100,
     idGateway: null,
     IDTipoPagamento:
-      mapTipoPagamento[pedido.order_info.pay_channel]?.IDTipoPagamento ??
+      mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento ??
       configuracoes.tipoPagamento.outros.IDTipoPagamento,
     IDUsuario: configuracoes.usuario.IDUsuario,
   });

@@ -10,7 +10,7 @@ import {
 export const adicionarCliente = async ({ pedido }) => {
   const clienteExistenteTag = await procurarTagChaveValor({
     chave: "99Food-customerId",
-    valor: pedido.order_info.receive_address.uid,
+    valor: pedido.receive_address.uid,
   });
 
   let bairro,
@@ -22,10 +22,10 @@ export const adicionarCliente = async ({ pedido }) => {
     enderecoDeReferenia,
     idEstado;
 
-  const ddd = pedido.order_info.receive_address.phone.substring(0, 2);
-  const telefone = pedido.order_info.receive_address.phone.substring(2);
-  const documento = pedido.order_info.receive_address.uid;
-  const nomeCompleto = pedido.order_info.receive_address.first_name;
+  const ddd = pedido.receive_address.phone.substring(0, 2);
+  const telefone = pedido.receive_address.phone.substring(2);
+  const documento = pedido.receive_address.uid;
+  const nomeCompleto = pedido.receive_address.first_name;
 
   if (pedido.delivery_type === 1) {
     bairro = "RETIRADA";
@@ -39,7 +39,7 @@ export const adicionarCliente = async ({ pedido }) => {
   }
 
   if (pedido.delivery_type === 2) {
-    const endereco = pedido.order_info.receive_address;
+    const endereco = pedido.receive_address;
 
     enderecoDeReferenia = endereco.reference;
     bairro = endereco.district;
@@ -73,7 +73,7 @@ export const adicionarCliente = async ({ pedido }) => {
     await criarTag({
       GUID: guid,
       chave: "99Food-customerId",
-      valor: pedido.order_info.receive_address.uid,
+      valor: pedido.receive_address.uid,
     });
 
     console.log("✅ novo cliente adicionado");
