@@ -1,9 +1,21 @@
 import axios from "axios";
 import { env } from "./env.js";
 import { addMinutes, isBefore } from "date-fns";
+import JSONbig from "json-bigint";
 
 export const api = axios.create({
   baseURL: "https://openapi.99food.com/v1",
+  transformResponse: [
+    (data) => {
+      if (!data) return data;
+
+      try {
+        return JSONbig.parse(data);
+      } catch {
+        return data;
+      }
+    },
+  ],
 });
 
 let token = null;

@@ -32,8 +32,6 @@ export const webhookController = async (req, res) => {
         params: { order_id: req.body.data.order_id },
       });
 
-      console.log("Order", JSON.stringify(response.data, null, 2));
-
       const pedido = response.data.data;
       const pedidoExistente = await verificarExistenciaPedido({
         orderId: pedido.order_id,

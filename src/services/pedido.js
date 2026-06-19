@@ -8,6 +8,35 @@ import {
 } from "../repositories/tag.js";
 import { api } from "../config/axios.js";
 
+const montarObservacaoCupom = (pedido) => {
+  const PROMO_TYPE_MAP = {
+    0: "",
+    1: "Minimum Order Discount",
+    2: "Sale Item Promotion",
+    3: "Free Delivery Event",
+    4: "Buy X Get Y Promotion",
+    5: "Buy More, Save More",
+    10: "Overall Order Coupon",
+    11: "Order Items Coupon",
+    12: "Delivery Coupon",
+    20: "Delivery Member Discount",
+    30: "Share Delivery Discount",
+    34: "Didi Membership Discount",
+    100: "New User Discount",
+    101: "Recurrent User Discount",
+  };
+
+  const code = `***Pedido 99Food ${pedido?.pickup_code}***\n`;
+
+  const descounts = pedido.promotions.map((p) => {
+    return p.promo_type != 0
+      ? `${PROMO_TYPE_MAP[p.promo_type]} R$ ${p.promo_discount / 100}\n`
+      : "";
+  });
+
+  return code + descounts;
+};
+
 export const adicionarPedido = async (pedido, idCliente) => {
   const idTipoDesconto = configuracoes.tipoDesconto.IDTipoDesconto;
   const idTaxaEntrega = configuracoes.taxaEntrega.IDTaxaEntrega;
@@ -18,7 +47,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
 
   const observacoes = "";
   const aplicarDesconto = valorDesconto > 0 ? 1 : 0;
-  const observacaoCupom = "";
+  const observacaoCupom = montarObservacaoCupom(pedido);
   const taxaServicoPadrao = 0;
 
   const guid = uuidv4();
@@ -60,7 +89,6 @@ export const adicionarPedido = async (pedido, idCliente) => {
 };
 
 export const sincronisarStatus = async ({ pedido }) => {
-  console.log("Sincronizando pedidods");
   // 100	Order created
   // 200	Order accepted (The store sent confirmation)
   // 400	The rider took the order for delivery
