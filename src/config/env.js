@@ -15,6 +15,7 @@ const envSchema = z.object({
   APP_ID: z.string(),
   SHOP_ID: z.string().default("3"),
   WEB_HOOK_SECRET: z.string(),
+  CAIXA_PDV: z.coerce.number(),
 });
 
 const _env = envSchema.safeParse(process.env);

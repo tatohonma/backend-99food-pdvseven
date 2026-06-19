@@ -116,6 +116,11 @@ export const sincronisarStatus = async ({ pedido }) => {
     60: "nao-confirmado",
   };
 
+  const DELIVERY_TYPE_MAP = {
+    1: "99Food",
+    2: "local",
+  };
+
   const tag = await procurarTagGUIDChave({
     chave: "99Food-orderId",
     GUID: pedido.GUIDIdentificacao,
@@ -131,6 +136,9 @@ export const sincronisarStatus = async ({ pedido }) => {
   ].includes(detalhesDoPedido.data.data.status);
 
   const statusPedidoNoPdv = STATUS_PDV[pedido.IDStatusPedido];
+  const tipoEntrega =
+    DELIVERY_TYPE_MAP[detalhesDoPedido.data.data.delivery_type] ||
+    "desconecido";
 
   if (statusPedidoDessinconizado) {
     if (statusPedidoNoPdv === "aberto") {
@@ -184,6 +192,22 @@ export const sincronisarStatus = async ({ pedido }) => {
         GUID: pedido.GUIDIdentificacao,
         chave: "99Food-status",
         valor: 921,
+      });
+
+      return;
+    }
+
+    if (statusPedidoNoPdv === "finalizado" && tipoEntrega === "local") {
+      console.log("Finalizando pedido - 99Food");
+
+      await api.post("/order/order/delivered", null, {
+        params: { order_id: tag.Valor },
+      });
+
+      await atualizarValorTag({
+        GUID: pedido.GUIDIdentificacao,
+        chave: "99Food-status",
+        valor: 600,
       });
 
       return;

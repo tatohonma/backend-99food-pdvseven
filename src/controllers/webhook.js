@@ -100,9 +100,15 @@ export const webhookController = async (req, res) => {
         valor: 600, // cancelado
       });
 
+      const idCaixaAberto = await procurarCaixaAberto({
+        idPDV: env.CAIXA_PDV,
+      });
+
       await atualizarStatusPedido({
         GUID: req.body.data.order_id,
         IDStatusPedido: 40, // "cancelado"
+        dtPedidoFechamento: new Date(),
+        idCaixa: idCaixaAberto.IDCaixa,
       });
     } catch (error) {
       console.error("erro ao cancelar pedido:", error);
