@@ -70,10 +70,10 @@ export const adicionarPedido = async (pedido, idCliente) => {
   });
 
   const tags = [
-    { chave: "99Food-orderId", valor: pedido.order_id },
-    { chave: "99Food-shortReference", valor: pedido.order_index },
-    { chave: "99Food-Type", valor: pedido.delivery_type },
-    { chave: "99Food-status", valor: pedido.status },
+    { chave: "Food99-orderId", valor: pedido.order_id },
+    { chave: "Food99-shortReference", valor: pedido.order_index },
+    { chave: "Food99-Type", valor: pedido.delivery_type },
+    { chave: "Food99-status", valor: pedido.status },
   ];
 
   for (const tag of tags) {
@@ -117,12 +117,12 @@ export const sincronisarStatus = async ({ pedido }) => {
   };
 
   const DELIVERY_TYPE_MAP = {
-    1: "99Food",
+    1: "Food99",
     2: "local",
   };
 
   const tag = await procurarTagGUIDChave({
-    chave: "99Food-orderId",
+    chave: "Food99-orderId",
     GUID: pedido.GUIDIdentificacao,
   });
 
@@ -152,7 +152,7 @@ export const sincronisarStatus = async ({ pedido }) => {
 
       await atualizarValorTag({
         GUID: pedido.GUIDIdentificacao,
-        chave: "99Food-status",
+        chave: "Food99-status",
         valor: 200,
       });
 
@@ -170,7 +170,7 @@ export const sincronisarStatus = async ({ pedido }) => {
 
       await atualizarValorTag({
         GUID: pedido.GUIDIdentificacao,
-        chave: "99Food-status",
+        chave: "Food99-status",
         valor: 400,
       });
 
@@ -190,7 +190,7 @@ export const sincronisarStatus = async ({ pedido }) => {
 
       await atualizarValorTag({
         GUID: pedido.GUIDIdentificacao,
-        chave: "99Food-status",
+        chave: "Food99-status",
         valor: 921,
       });
 
@@ -206,7 +206,7 @@ export const sincronisarStatus = async ({ pedido }) => {
 
       await atualizarValorTag({
         GUID: pedido.GUIDIdentificacao,
-        chave: "99Food-status",
+        chave: "Food99-status",
         valor: 600,
       });
 
@@ -219,7 +219,7 @@ export const sincronisarStatus = async ({ pedido }) => {
 
 export const verificarExistenciaPedido = async ({ orderId }) => {
   return await procurarTagChaveValor({
-    chave: "99Food-orderId",
+    chave: "Food99-orderId",
     valor: orderId,
   });
 };

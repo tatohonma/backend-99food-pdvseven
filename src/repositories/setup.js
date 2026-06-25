@@ -6,13 +6,13 @@ const obterOrigemPedido = async () => {
 
   const origem = await pool
     .request()
-    .query(`SELECT * FROM tbOrigemPedido WHERE nome='99Food'`);
+    .query(`SELECT * FROM tbOrigemPedido WHERE nome='Food99'`);
 
   if (origem.recordset.length === 0) {
     const result = await pool
       .request()
       .query(
-        `INSERT INTO tbOrigemPedido (nome) OUTPUT INSERTED.* VALUES ('99Food')`,
+        `INSERT INTO tbOrigemPedido (nome) OUTPUT INSERTED.* VALUES ('Food99')`,
       );
 
     return result.recordset[0];
@@ -50,13 +50,13 @@ const obterTipoDesconto = async () => {
 
   const tipoDesconto = await pool
     .request()
-    .query(`SELECT * FROM tbTipoDesconto WHERE nome='99Food'`);
+    .query(`SELECT * FROM tbTipoDesconto WHERE nome='Food99'`);
 
   if (tipoDesconto.recordset.length === 0) {
     const result = await pool
       .request()
       .query(
-        `INSERT INTO tbTipoDesconto (nome, ativo, excluido) OUTPUT INSERTED.* VALUES ('99Food', 1, 0)`,
+        `INSERT INTO tbTipoDesconto (nome, ativo, excluido) OUTPUT INSERTED.* VALUES ('Food99', 1, 0)`,
       );
 
     return result.recordset[0];
@@ -70,14 +70,14 @@ const obterEntregador = async () => {
 
   const entregador = await pool
     .request()
-    .input("nome", "99Food")
+    .input("nome", "Food99")
     .query(`SELECT * FROM tbEntregador WHERE nome=@nome`);
 
   if (entregador.recordset.length === 0) {
     const result = await pool.request().query(
       `INSERT INTO tbEntregador (nome, ativo, excluido)
          OUTPUT INSERTED.*
-         VALUES ('99Food', 1, 0)`,
+         VALUES ('Food99', 1, 0)`,
     );
 
     return result.recordset[0];
@@ -91,14 +91,14 @@ const obterTaxaEntrega = async () => {
 
   const taxa = await pool
     .request()
-    .input("nome", "99Food")
+    .input("nome", "Food99")
     .query(`SELECT * FROM tbTaxaEntrega WHERE nome=@nome`);
 
   if (taxa.recordset.length === 0) {
     const result = await pool.request().query(
       `INSERT INTO tbTaxaEntrega (nome, valor, ativo, excluido)
          OUTPUT INSERTED.*
-         VALUES ('99Food', 0, 1, 0)`,
+         VALUES ('Food99', 0, 1, 0)`,
     );
 
     return result.recordset[0];
@@ -112,20 +112,20 @@ const obterTipoPagamento99Food = async () => {
 
   const tipo = await pool
     .request()
-    .input("nome", "99Food")
+    .input("nome", "Food99")
     .query(`SELECT * FROM tbTipoPagamento WHERE nome=@nome`);
 
   if (tipo.recordset.length === 0) {
     await pool.request().query(`
       INSERT INTO tbGateway (idGateway, nome)
-      VALUES (8, '99Food')
+      VALUES (8, 'Food99')
     `);
 
     const result = await pool.request().query(`
       INSERT INTO tbTipoPagamento
       (nome, registrarValores, ativo, idMeioPagamentoSAT, idGateway)
       OUTPUT INSERTED.*
-      VALUES ('99Food', 0, 1, 10, 8)
+      VALUES ('Food99', 0, 1, 10, 8)
     `);
 
     return result.recordset[0];

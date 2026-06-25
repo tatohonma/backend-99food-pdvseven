@@ -9,7 +9,7 @@ import {
 
 export const adicionarCliente = async ({ pedido }) => {
   const clienteExistenteTag = await procurarTagChaveValor({
-    chave: "99Food-customerId",
+    chave: "Food99-customerId",
     valor: pedido.receive_address.uid,
   });
 
@@ -72,7 +72,7 @@ export const adicionarCliente = async ({ pedido }) => {
 
     await criarTag({
       GUID: guid,
-      chave: "99Food-customerId",
+      chave: "Food99-customerId",
       valor: pedido.receive_address.uid,
     });
 

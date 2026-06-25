@@ -23,9 +23,6 @@ export const webhookController = async (req, res) => {
   if (token !== env.WEB_HOOK_SECRET)
     return res.status(401).send("Unauthorized");
 
-  // if (req.body.app_id !== env.APP_ID)
-  //   return res.status(401).send("Unauthorized");
-
   if (req.body.type === "orderNew") {
     try {
       const response = await api.get("/order/order/detail", {
@@ -74,7 +71,7 @@ export const webhookController = async (req, res) => {
       );
 
       await atualizarValorTag({
-        chave: "99Food-status",
+        chave: "Food99-status",
         GUID: req.body.data.order_id,
         valor: 922, // cancelado
       });
@@ -95,7 +92,7 @@ export const webhookController = async (req, res) => {
       );
 
       await atualizarValorTag({
-        chave: "99Food-status",
+        chave: "Food99-status",
         GUID: req.body.data.order_id,
         valor: 600, // cancelado
       });
