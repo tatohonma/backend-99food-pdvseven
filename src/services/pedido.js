@@ -43,7 +43,9 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const idOrigemPedido = configuracoes.origemPedido.IDOrigemPedido;
   const idEntregador = configuracoes.entregador.IDEntregador;
 
-  const valorDesconto = pedido.price.items_discount;
+  const valorDesconto =
+    pedido.price.items_discount + pedido.price.delivery_discount;
+  const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
 
   const observacoes = "";
   const aplicarDesconto = valorDesconto > 0 ? 1 : 0;
@@ -51,6 +53,8 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const taxaServicoPadrao = 0;
 
   const guid = uuidv4();
+
+  const outrasTaxas = pedido.price?.others_fees?.service_price ?? 0;
 
   const result = await criarPedido({
     aplicarDesconto,
@@ -64,8 +68,10 @@ export const adicionarPedido = async (pedido, idCliente) => {
     observacaoCupom,
     valorDesconto,
     observacoes,
-    valorTotal: pedido.price.order_price / 100,
-    valorEntrega: pedido.store_charged_delivery_price / 100,
+    valorTotal:
+      (pedido.price.order_price + outrasTaxas - valorDesconto + taxaEntrega) /
+      100,
+    valorEntrega: taxaEntrega / 100,
     // IDRetornoSatVenda
   });
 

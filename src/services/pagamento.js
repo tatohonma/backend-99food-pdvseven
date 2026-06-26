@@ -8,12 +8,18 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
     212: configuracoes.tipoPagamento.pix,
   };
 
+  const outrasTaxas = pedido.price?.others_fees?.service_price ?? 0;
+  const valorDesconto =
+    pedido.price.items_discount + pedido.price.delivery_discount;
+  const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
+
   const valorDoPagamento =
     pedido.pay_channel === 150
       ? pedido.change_for ||
         pedido.price.real_pay_price ||
-        pedido.price.order_price
-      : pedido.price.real_pay_price || pedido.price.order_price;
+        pedido.price.order_price + outrasTaxas - valorDesconto + taxaEntrega
+      : pedido.price.real_pay_price ||
+        pedido.price.order_price + outrasTaxas - valorDesconto + taxaEntrega;
 
   await criarPedidoPagamento({
     idPedido,

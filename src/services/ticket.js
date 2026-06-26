@@ -21,19 +21,20 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     });
   });
 
-  // ticket += `\r\nDescontos:\r\n`;
-  // pedido.discounts.forEach((discount) => {
-  //   ticket += `  - ${discount.tag}: R$ ${discount.amount.toFixed(2)}\r\n`;
-  // });
-  // ticket += `\r\nTaxa de Entrega: R$ ${pedido.deliveryFee.toFixed(2)}\r\n`;
-  //
+  const outrasTaxas = pedido.price?.others_fees?.service_price ?? 0;
+  const valorDesconto =
+    pedido.price.items_discount + pedido.price.delivery_discount;
+  const taxaEntrega = pedido.price.store_charged_delivery_price;
+
+  ticket += `\r\nDescontos: R$ ${valorDesconto.toFixed(2)}\r\n`;
+  ticket += `\r\nTaxa de Entrega: R$ ${(taxaEntrega / 100).toFixed(2)}\r\n`;
 
   if (pagamento.value > 0) {
     ticket += `\r\nPagamentos:\r\n`;
     ticket += `  - ${pagamento.value / 100}`;
   }
 
-  ticket += `\r\nTotal: R$ ${pedido.price.order_price / 100}\r\n`;
+  ticket += `\r\nTotal: R$ ${(pedido.price.order_price + outrasTaxas + taxaEntrega - valorDesconto) / 100}\r\n`;
 
   return ticket;
 };
