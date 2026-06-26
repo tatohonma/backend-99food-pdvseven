@@ -1,4 +1,4 @@
-import { criarPedido } from "../repositories/pedido.js";
+import { atualizarStatusPedido, criarPedido } from "../repositories/pedido.js";
 import { configuracoes } from "../config/pdv7.js";
 import { v4 as uuidv4 } from "uuid";
 import { atualizarValorTag, criarTag } from "../repositories/tag.js";
@@ -144,17 +144,33 @@ export const sincronisarStatus = async ({ pedido }) => {
     if (statusPedidoNoPdv === "aberto") {
       console.log("Confirmando pedido - 99Food");
 
-      await api.post("/order/order/confirm", null, {
+      const response = await api.post("/order/order/confirm", null, {
         params: {
           order_id: tag.Valor,
         },
       });
 
-      await atualizarValorTag({
-        GUID: pedido.GUIDIdentificacao,
-        chave: "Food99-status",
-        valor: 200,
-      });
+      if (response.data.errno === 0) {
+        await atualizarValorTag({
+          GUID: pedido.GUIDIdentificacao,
+          chave: "Food99-status",
+          valor: 200,
+        });
+      }
+
+      if (response.data.errno === 12010) {
+        console.log("Pedido cancelado no 99Food, atualizando status no PDV7");
+        await atualizarValorTag({
+          chave: "Food99-status",
+          GUID: tag.Valor,
+          valor: 922, // cancelado
+        });
+
+        await atualizarStatusPedido({
+          GUID: pedido.GUIDIdentificacao,
+          IDStatusPedido: 50, // "cancelado"
+        });
+      }
 
       return;
     }

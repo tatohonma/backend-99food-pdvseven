@@ -10,7 +10,7 @@ import {
 export const adicionarCliente = async ({ pedido }) => {
   const clienteExistenteTag = await procurarTagChaveValor({
     chave: "Food99-customerId",
-    valor: pedido.receive_address.uid,
+    valor: pedido.receive_address?.uid,
   });
 
   let bairro,
@@ -24,7 +24,7 @@ export const adicionarCliente = async ({ pedido }) => {
 
   const ddd = pedido.receive_address.phone.substring(0, 2);
   const telefone = pedido.receive_address.phone.substring(2);
-  const documento = pedido.receive_address.uid;
+  const documento = pedido.receive_address?.uid;
   const nomeCompleto = pedido.receive_address.first_name;
 
   if (pedido.delivery_type === 1) {
@@ -73,7 +73,7 @@ export const adicionarCliente = async ({ pedido }) => {
     await criarTag({
       GUID: guid,
       chave: "Food99-customerId",
-      valor: pedido.receive_address.uid,
+      valor: pedido.receive_address?.uid,
     });
 
     console.log("✅ novo cliente adicionado");
