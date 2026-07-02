@@ -21,7 +21,9 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     });
   });
 
-  const outrasTaxas = pedido.price?.others_fees?.service_price ?? 0;
+  const outrasTaxas =
+    pedido.price?.others_fees?.service_price +
+      pedido.price?.others_fees?.meal_top_up_price ?? 0;
   const valorDesconto =
     pedido.price.items_discount + pedido.price.delivery_discount;
   const taxaEntrega = pedido.price.store_charged_delivery_price;

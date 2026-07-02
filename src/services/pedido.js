@@ -54,7 +54,9 @@ export const adicionarPedido = async (pedido, idCliente) => {
 
   const guid = uuidv4();
 
-  const outrasTaxas = pedido.price?.others_fees?.service_price ?? 0;
+  const outrasTaxas =
+    pedido.price?.others_fees?.service_price +
+      pedido.price?.others_fees?.meal_top_up_price ?? 0;
 
   const result = await criarPedido({
     aplicarDesconto,
