@@ -68,5 +68,8 @@ export const setup = async () => {
     await SetupRepository.obterTipoPagamentoPorSAT(10);
   console.log("  - TipoPagamento Outros carregado");
 
+  await SetupRepository.produtoTaxaServico();
+  console.log("  - Produto 'Taxa de Serviço 99Food' carregado");
+
   console.log("configurações carregadas com sucesso");
 };

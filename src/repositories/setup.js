@@ -210,9 +210,57 @@ const obterIdPdv = async () => {
   return result.recordset[0];
 };
 
+const produtoTaxaServico = async () => {
+  const pool = await db.getPool();
+
+  const produtoResult = await pool.request().query(`
+    SELECT *
+    FROM tbProduto
+    WHERE Nome = 'Taxa de Serviço 99Food'
+  `);
+
+  if (produtoResult.recordset.length === 0) {
+    await pool.request().query(`
+      INSERT INTO tbProduto (
+        IDTipoProduto,
+        Nome,
+        ValorUnitario,
+        Ativo,
+        Disponibilidade,
+        DtAlteracaoDisponibilidade,
+        DtUltimaAlteracao,
+        Excluido,
+        IDClassificacaoFiscal,
+        IDUnidade,
+        ControlarEstoque,
+        UtilizarBalanca,
+        AssistenteModificacoes,
+        GUIDIdentificacao
+      )
+      VALUES (
+        10,
+        'Taxa de Serviço 99Food',
+        0,
+        1,
+        1,
+        GETDATE(),
+        GETDATE(),
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        NEWID()
+      )
+    `);
+  }
+};
+
 export const SetupRepository = {
   obterTipoPagamentoPorSAT,
   obterTipoPagamento99Food,
+  produtoTaxaServico,
   obterOrigemPedido,
   obterTipoDesconto,
   obterTaxaEntrega,

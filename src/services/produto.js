@@ -35,7 +35,7 @@ export const adicionarProdutos = async ({
   }
 };
 
-const adicionarPedidoProduto = async (
+export const adicionarPedidoProduto = async (
   idPedido,
   produto,
   idPedidoProdutoPai,
@@ -45,7 +45,6 @@ const adicionarPedidoProduto = async (
 
   const idUsuario = 1;
   const notas = [produto.observacao].filter(Boolean).join(" ");
-
   const pedidoProduto = criarPedidoProduto({
     idPDV: idPDV.Valor,
     notas,

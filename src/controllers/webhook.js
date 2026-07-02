@@ -3,7 +3,10 @@ import {
   adicionarPedido,
   verificarExistenciaPedido,
 } from "../services/pedido.js";
-import { adicionarProdutos } from "../services/produto.js";
+import {
+  adicionarPedidoProduto,
+  adicionarProdutos,
+} from "../services/produto.js";
 import { adicionarPagamento } from "../services/pagamento.js";
 import {
   adcionarObservacoes,
@@ -16,6 +19,7 @@ import {
 } from "../repositories/tag.js";
 import { env } from "../config/env.js";
 import { api } from "../config/axios.js";
+import { obterProdutoTaxaDeServico99Food } from "../repositories/produto.js";
 
 export const webhookController = async (req, res) => {
   const token = req.query.token;
@@ -47,6 +51,29 @@ export const webhookController = async (req, res) => {
         idPedido: insertedId,
         produtos: pedido.order_items,
       });
+
+      if (pedido?.price?.others_fees?.service_price > 0) {
+        console.log(
+          "Service fee detected, adding service fee product to order...",
+        );
+        const produto = await obterProdutoTaxaDeServico99Food();
+
+        const item = {
+          total_price: pedido.price.others_fees.service_price,
+          amount: 1,
+        };
+
+        console.log("Adding service fee product:", produto);
+        await adicionarPedidoProduto(
+          insertedId,
+          {
+            idProduto: produto.IDProduto,
+            observacao: "",
+          },
+          null,
+          item,
+        );
+      }
 
       const pagamento = await adicionarPagamento({
         idPedido: insertedId,
