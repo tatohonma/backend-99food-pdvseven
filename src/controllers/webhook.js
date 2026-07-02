@@ -43,8 +43,6 @@ export const webhookController = async (req, res) => {
       const clientId = await adicionarCliente({ pedido });
       const insertedId = await adicionarPedido(pedido, clientId);
 
-      console.log(`Pass`);
-
       await adicionarProdutos({
         idPedido: insertedId,
         produtos: pedido.order_items,
