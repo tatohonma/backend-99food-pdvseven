@@ -43,8 +43,10 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const idOrigemPedido = configuracoes.origemPedido.IDOrigemPedido;
   const idEntregador = configuracoes.entregador.IDEntregador;
 
-  const valorDesconto =
-    pedido.price.items_discount + pedido.price.delivery_discount;
+  const valorDesconto = pedido.promotions.reduce((sum, item) => {
+    return sum + (item?.promo_discount ?? 0) + (item?.shop_subside_price ?? 0);
+  }, 0);
+
   const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
 
   const observacoes = "";
@@ -70,9 +72,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
     observacaoCupom,
     valorDesconto,
     observacoes,
-    valorTotal:
-      (pedido.price.order_price + outrasTaxas - valorDesconto + taxaEntrega) /
-      100,
+    valorTotal: (pedido.price.order_price + outrasTaxas + taxaEntrega) / 100,
     valorEntrega: taxaEntrega / 100,
     // IDRetornoSatVenda
   });
