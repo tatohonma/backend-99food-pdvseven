@@ -70,9 +70,9 @@ export const adicionarPedido = async (pedido, idCliente) => {
     idCliente,
     guid,
     observacaoCupom,
-    valorDesconto,
     observacoes,
-    valorTotal: (pedido.price.order_price + outrasTaxas + taxaEntrega) / 100,
+    valorDesconto: valorDesconto / 100,
+    valorTotal: (pedido.price.order_price + outrasTaxas) / 100,
     valorEntrega: taxaEntrega / 100,
     // IDRetornoSatVenda
   });

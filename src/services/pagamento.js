@@ -17,11 +17,10 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
 
   const valorDoPagamento =
     pedido.pay_channel === 150
-      ? pedido.price.real_pay_price ||
-        pedido.price.order_price + outrasTaxas + taxaEntrega
+      ? pedido.price.real_pay_price || pedido.price.order_price + outrasTaxas
       : pedido.change_for ||
         pedido.price.real_pay_price ||
-        pedido.price.order_price + outrasTaxas + taxaEntrega;
+        pedido.price.order_price + outrasTaxas;
 
   await criarPedidoPagamento({
     idPedido,
