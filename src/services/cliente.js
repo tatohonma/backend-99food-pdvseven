@@ -27,29 +27,16 @@ export const adicionarCliente = async ({ pedido }) => {
   const documento = pedido.receive_address?.uid;
   const nomeCompleto = pedido.receive_address.first_name;
 
-  if (pedido.delivery_type === 1) {
-    bairro = "RETIRADA";
-    cep = "0";
-    cidade = "RETIRADA";
-    complemento = "";
-    enderecoDeReferenia = "";
-    rua = "RETIRADA NO LOCAL";
-    numero = "S/N";
-    idEstado = 25;
-  }
+  const endereco = pedido.receive_address;
 
-  if (pedido.delivery_type === 2) {
-    const endereco = pedido.receive_address;
-
-    enderecoDeReferenia = endereco.reference;
-    bairro = endereco.district;
-    cep = endereco.postal_code ? endereco.postal_code?.replace(/\D/g, "") : "0";
-    cidade = endereco.city;
-    complemento = endereco.complement;
-    rua = endereco.street_name;
-    numero = endereco.street_number;
-    idEstado = await buscarIdEstado({ estado: endereco.state });
-  }
+  enderecoDeReferenia = endereco.reference;
+  bairro = endereco.district;
+  cep = endereco.postal_code ? endereco.postal_code?.replace(/\D/g, "") : "0";
+  cidade = endereco.city;
+  complemento = endereco.complement;
+  rua = endereco.street_name;
+  numero = endereco.street_number;
+  idEstado = await buscarIdEstado({ estado: endereco.state });
 
   if (!clienteExistenteTag) {
     const guid = uuidv4();
