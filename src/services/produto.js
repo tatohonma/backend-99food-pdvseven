@@ -9,11 +9,11 @@ export const adicionarProdutos = async ({
   for (const item of produtos) {
     const produto = {};
 
-    if (item.app_external_id) {
-      produto.idPedido = item.app_external_id;
+    if (item.app_item_id) {
+      produto.idPedido = item.app_item_id;
     }
 
-    if (!item.app_external_id) {
+    if (!item.app_item_id) {
       produto.idProduto = 1;
       produto.observacao = `não cadastrado: ${item.name}`;
     }
