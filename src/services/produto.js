@@ -52,7 +52,7 @@ export const adicionarPedidoProduto = async (
     idPedidoProdutoPai,
     idPedido,
     idProduto: produto.idProduto,
-    price: item.total_price / 100,
+    price: item.sku_price / 100,
     quantity: item.amount,
   });
 

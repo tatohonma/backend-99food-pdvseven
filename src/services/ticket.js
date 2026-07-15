@@ -11,12 +11,12 @@ export const formatarTicket = ({ pedido, pagamento }) => {
 
   ticket += `Itens:\r\n`;
   pedido.order_items.forEach((item) => {
-    ticket += `  - ${item.amount} x ${item.name}: R$ ${item.total_price / 100}\r\n`;
+    ticket += `  - ${item.amount} x ${item.name}: R$ ${item.sku_price / 100}\r\n`;
     if (item.remark) ticket += `    Observações: ${item.remark}\r\n`;
 
     //adicionar subitens ao ticket
     item.sub_item_list.forEach((subItem) => {
-      ticket += `    - ${subItem.amount} x ${subItem.name}: R$ ${subItem.total_price / 100}\r\n`;
+      ticket += `    - ${subItem.amount} x ${subItem.name}: R$ ${subItem.sku_price / 100}\r\n`;
       if (subItem.remark) ticket += `      Observações: ${subItem.remark}\r\n`;
     });
   });
