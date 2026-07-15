@@ -10,7 +10,7 @@ export const adicionarProdutos = async ({
     const produto = {};
 
     if (item.app_item_id) {
-      produto.idPedido = item.app_item_id;
+      produto.idProduto = item.app_item_id;
     }
 
     if (!item.app_item_id) {
