@@ -53,17 +53,13 @@ export const webhookController = async (req, res) => {
       });
 
       if (pedido?.price?.others_fees?.service_price > 0) {
-        console.log(
-          "Service fee detected, adding service fee product to order...",
-        );
         const produto = await obterProdutoTaxaDeServico99Food();
 
         const item = {
-          total_price: pedido.price.others_fees.service_price,
+          sku_price: pedido.price.others_fees.service_price,
           amount: 1,
         };
 
-        console.log("Adding service fee product:", produto);
         await adicionarPedidoProduto(
           insertedId,
           {
