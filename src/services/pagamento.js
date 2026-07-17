@@ -17,18 +17,23 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
 
   const valorDoPagamento =
     pedido.pay_channel === 150
-      ? pedido.price.real_pay_price || pedido.price.order_price + outrasTaxas
+      ? pedido.price.real_pay_price ||
+        pedido.price.order_price + outrasTaxas - valorDesconto
       : pedido.change_for ||
         pedido.price.real_pay_price ||
-        pedido.price.order_price + outrasTaxas;
+        pedido.price.order_price + outrasTaxas - valorDesconto;
+
+  const idTipoPagamento =
+    pedido.delivery_type === 1
+      ? configuracoes.tipoPagamento["99Food"].IDTipoPagamento
+      : mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento;
 
   await criarPedidoPagamento({
     idPedido,
     valorDoPagamento: valorDoPagamento / 100,
     idGateway: null,
     IDTipoPagamento:
-      mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento ??
-      configuracoes.tipoPagamento.outros.IDTipoPagamento,
+      idTipoPagamento ?? configuracoes.tipoPagamento.outros.IDTipoPagamento,
     IDUsuario: configuracoes.usuario.IDUsuario,
   });
 

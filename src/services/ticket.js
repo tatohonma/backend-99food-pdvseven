@@ -28,7 +28,7 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     pedido.price.items_discount + pedido.price.delivery_discount;
   const taxaEntrega = pedido.price.store_charged_delivery_price;
 
-  ticket += `\r\nDescontos: R$ ${valorDesconto.toFixed(2)}\r\n`;
+  ticket += `\r\nDescontos: R$ ${(valorDesconto / 100).toFixed(2)}\r\n`;
   ticket += `\r\nTaxa de Entrega: R$ ${(taxaEntrega / 100).toFixed(2)}\r\n`;
 
   if (pagamento.value > 0) {

@@ -13,7 +13,7 @@ export const configuracoes = {
     debito: null,
     vr: null,
     pix: null,
-    keeta: null,
+    "99Food": null,
     outros: null,
   },
 };
@@ -42,9 +42,9 @@ export const setup = async () => {
   configuracoes.taxaEntrega = await SetupRepository.obterTaxaEntrega();
   console.log("  - TaxaEntrega carregada");
 
-  configuracoes.tipoPagamento.keeta =
+  configuracoes.tipoPagamento["99Food"] =
     await SetupRepository.obterTipoPagamento99Food();
-  console.log("  - TipoPagamento keeta carregado");
+  console.log("  - TipoPagamento 99Food carregado");
 
   configuracoes.tipoPagamento.dinheiro =
     await SetupRepository.obterTipoPagamentoPorSAT(1);
