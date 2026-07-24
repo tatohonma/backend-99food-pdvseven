@@ -20,6 +20,7 @@ import {
 import { env } from "../config/env.js";
 import { api } from "../config/axios.js";
 import { obterProdutoTaxaDeServico99Food } from "../repositories/produto.js";
+import { procurarCaixaAberto } from "../repositories/caixa.js";
 
 export const webhookController = async (req, res) => {
   const token = req.query.token;
@@ -93,14 +94,19 @@ export const webhookController = async (req, res) => {
         `status pvd7 sendo alterado para cancelado, id: ${req.body.data.order_id}`,
       );
 
+      const tag = await procurarTagChaveValor({
+        chave: "Food99-orderId",
+        valor: req.body.data.order_id,
+      });
+
       await atualizarValorTag({
         chave: "Food99-status",
-        GUID: req.body.data.order_id,
+        GUID: tag.GUIDIdentificacao,
         valor: 922, // cancelado
       });
 
       await atualizarStatusPedido({
-        GUID: req.body.data.order_id,
+        GUID: tag.GUIDIdentificacao,
         IDStatusPedido: 50, // "cancelado"
       });
     } catch (error) {
@@ -114,10 +120,15 @@ export const webhookController = async (req, res) => {
         `status pvd7 sendo alterado para finalizado, id: ${req.body.data.order_id}`,
       );
 
+      const tag = await procurarTagChaveValor({
+        chave: "Food99-orderId",
+        valor: req.body.data.order_id,
+      });
+
       await atualizarValorTag({
         chave: "Food99-status",
-        GUID: req.body.data.order_id,
-        valor: 600, // cancelado
+        GUID: tag.GUIDIdentificacao,
+        valor: 600, // finalizado
       });
 
       const idCaixaAberto = await procurarCaixaAberto({
@@ -125,13 +136,13 @@ export const webhookController = async (req, res) => {
       });
 
       await atualizarStatusPedido({
-        GUID: req.body.data.order_id,
-        IDStatusPedido: 40, // "cancelado"
+        GUID: tag.GUIDIdentificacao,
+        IDStatusPedido: 40, // "finalizado"
         dtPedidoFechamento: new Date(),
         idCaixa: idCaixaAberto.IDCaixa,
       });
     } catch (error) {
-      console.error("erro ao cancelar pedido:", error);
+      console.error("erro ao finalizar pedido:", error);
     }
   }
 
