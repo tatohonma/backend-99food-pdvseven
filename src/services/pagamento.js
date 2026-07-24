@@ -15,13 +15,22 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
     pedido.price.items_discount + pedido.price.delivery_discount;
   const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
 
+  const pagamentoPadrao =
+    pedido.price.real_pay_price ||
+    pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto;
+
+  const pagamentoDinheiro =
+    pedido.change_for ||
+    pedido.price.real_pay_price ||
+    pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto;
+
+  // Valor do pagamento não gera troco caso pagamento seja realizado via 99food
   const valorDoPagamento =
     pedido.pay_channel === 150
-      ? pedido.price.real_pay_price ||
-        pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto
-      : pedido.change_for ||
-        pedido.price.real_pay_price ||
-        pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto;
+      ? pagamentoPadrao
+      : pedido.delivery_type === 1
+        ? pagamentoPadrao
+        : pagamentoDinheiro;
 
   const idTipoPagamento =
     pedido.delivery_type === 1
