@@ -1,4 +1,8 @@
-import { atualizarStatusPedido, criarPedido } from "../repositories/pedido.js";
+import {
+  atualizarStatusPedido,
+  criarPedido,
+  procurarMotivoCancelamentoPedido,
+} from "../repositories/pedido.js";
 import { configuracoes } from "../config/pdv7.js";
 import { v4 as uuidv4 } from "uuid";
 import { atualizarValorTag, criarTag } from "../repositories/tag.js";
@@ -225,10 +229,32 @@ export const sincronisarStatus = async ({ pedido }) => {
     if (statusPedidoNoPdv === "cancelado") {
       console.log("Cancelando pedido - 99Food");
 
+      const motivosCancelamento99Food = {
+        "Item sold out": 1010,
+        "Store closed for the day": 1020,
+        "Store too busy to prepare order": 1030,
+        "Major accident or utility outage": 1040,
+        "Canceled due to customer issue": 1050,
+        "No courier available": 1060,
+        "Menu needs to be updated": 1070,
+        "Order is outside the delivery area": 1071,
+        "Order address is in an unsafe area": 1072,
+        "Suspected fraud or prank": 1073,
+        "Questions about fees or promotions": 1074,
+        "Other reason": 1080,
+      };
+
+      const motivoCancelamento = await procurarMotivoCancelamentoPedido({
+        IDPedido: pedido.IDPedido,
+      });
+
+      const reasonId =
+        motivosCancelamento99Food[motivoCancelamento?.Nome] ?? 1080;
+
       await api.post("/order/order/cancel", null, {
         params: {
           order_id: tag.Valor,
-          reason_id: 1080,
+          reason_id: reasonId,
           reason: "Cancelado pelo PDV",
         },
       });

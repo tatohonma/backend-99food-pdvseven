@@ -97,3 +97,19 @@ export const listarPedidos = async () => {
 
   return pedidos.recordset;
 };
+
+export const procurarMotivoCancelamentoPedido = async ({ IDPedido }) => {
+  const pool = await db.getPool();
+
+  const motivoCancelamento = await pool.request().input("IDPedido", IDPedido)
+    .query(`
+      SELECT
+        MC.Nome
+      FROM tbMotivoCancelamento MC
+      INNER JOIN tbPedidoProduto PP
+        ON PP.IDMotivoCancelamento = MC.IDMotivoCancelamento
+      WHERE PP.IDPedido = @IDPedido;
+    `);
+
+  return motivoCancelamento.recordset[0];
+};
