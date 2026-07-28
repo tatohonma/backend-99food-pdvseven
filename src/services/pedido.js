@@ -9,32 +9,51 @@ import {
 import { api } from "../config/axios.js";
 
 const montarObservacaoCupom = (pedido) => {
-  const PROMO_TYPE_MAP = {
-    0: "",
-    1: "Minimum Order Discount",
-    2: "Sale Item Promotion",
-    3: "Free Delivery Event",
-    4: "Buy X Get Y Promotion",
-    5: "Buy More, Save More",
-    10: "Overall Order Coupon",
-    11: "Order Items Coupon",
-    12: "Delivery Coupon",
-    20: "Delivery Member Discount",
-    30: "Share Delivery Discount",
-    34: "Didi Membership Discount",
-    100: "New User Discount",
-    101: "Recurrent User Discount",
-  };
+  // const PROMO_TYPE_MAP = {
+  //   0: "",
+  //   1: "Minimum Order Discount",
+  //   2: "Sale Item Promotion",
+  //   3: "Free Delivery Event",
+  //   4: "Buy X Get Y Promotion",
+  //   5: "Buy More, Save More",
+  //   10: "Overall Order Coupon",
+  //   11: "Order Items Coupon",
+  //   12: "Delivery Coupon",
+  //   20: "Delivery Member Discount",
+  //   30: "Share Delivery Discount",
+  //   34: "Didi Membership Discount",
+  //   100: "New User Discount",
+  //   101: "Recurrent User Discount",
+  // };
+
+  const descounts = pedido.promotions.reduce(
+    (acc, p) => {
+      acc.shop_subside_price += p.shop_subside_price || 0;
+      acc.promo_discount += p.promo_discount || 0;
+      return acc;
+    },
+    {
+      shop_subside_price: 0,
+      promo_discount: 0,
+    },
+  );
 
   const code = `***Pedido 99Food ${pedido?.pickup_code}***\n`;
+  const orderId = `ID do Pedido: ${pedido?.order_index}\n`;
+  const localizador = pedido?.locator ? `Localizador: ${pedido.locator}\n` : "";
 
-  const descounts = pedido.promotions.map((p) => {
-    return p.promo_type != 0
-      ? `${PROMO_TYPE_MAP[p.promo_type]} R$ ${p.promo_discount / 100}\n`
-      : "";
-  });
+  const msgDesconsto = ` Incentivo 99Food R$ ${(descounts.promo_discount - descounts.shop_subside_price) / 100}
+  Incentivo Estabelecimento R$ ${descounts.shop_subside_price / 100}`;
 
-  return code + descounts;
+  // const localizador = `Localizador: ${pedido?.locator}\n`;
+
+  // const descounts = pedido.promotions.map((p) => {
+  //   return p.promo_type != 0
+  //     ? `${PROMO_TYPE_MAP[p.promo_type]} R$ ${p.promo_discount / 100}\n`
+  //     : "";
+  // });
+
+  return code + orderId + localizador + msgDesconsto;
 };
 
 export const adicionarPedido = async (pedido, idCliente) => {
