@@ -44,7 +44,9 @@ const montarObservacaoCupom = (pedido) => {
 
   const code = `***Pedido 99Food ${pedido?.pickup_code}***\n`;
   const orderId = `ID do Pedido: ${pedido?.order_index}\n`;
-  const localizador = pedido?.locator ? `Localizador: ${pedido.locator}\n` : "";
+  const localizador = pedido?.receive_address?.locator
+    ? `Localizador: ${pedido.receive_address.locator}\n`
+    : "";
 
   const msgDesconsto = ` Incentivo 99Food R$ ${(descounts.promo_discount - descounts.shop_subside_price) / 100}
   Incentivo Estabelecimento R$ ${descounts.shop_subside_price / 100}`;
