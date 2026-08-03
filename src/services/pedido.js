@@ -47,6 +47,9 @@ const montarObservacaoCupom = (pedido) => {
   const localizador = pedido?.receive_address?.locator
     ? `Localizador: ${pedido.receive_address.locator}\n`
     : "";
+  const codigoRetirada = pedido?.handover_code
+    ? `Código de Retirada: ${pedido.handover_code}\n`
+    : "";
 
   const msgDesconsto = ` Incentivo 99Food R$ ${(descounts.promo_discount - descounts.shop_subside_price) / 100}
   Incentivo Estabelecimento R$ ${descounts.shop_subside_price / 100}`;
@@ -59,7 +62,7 @@ const montarObservacaoCupom = (pedido) => {
   //     : "";
   // });
 
-  return code + orderId + localizador + msgDesconsto;
+  return code + orderId + localizador + codigoRetirada + msgDesconsto;
 };
 
 export const adicionarPedido = async (pedido, idCliente) => {
