@@ -22,10 +22,10 @@ export const adicionarCliente = async ({ pedido }) => {
     enderecoDeReferenia,
     idEstado;
 
-  const ddd = pedido.receive_address.phone.substring(0, 2);
-  const telefone = pedido.receive_address.phone.substring(2);
+  const ddd = pedido.receive_address?.phone?.substring(0, 2);
+  const telefone = pedido.receive_address?.phone?.substring(2);
   const documento = pedido.receive_address?.uid;
-  const nomeCompleto = pedido.receive_address.first_name;
+  const nomeCompleto = pedido.receive_address?.first_name;
 
   const endereco = pedido.receive_address;
 
