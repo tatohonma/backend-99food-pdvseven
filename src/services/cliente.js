@@ -29,14 +29,14 @@ export const adicionarCliente = async ({ pedido }) => {
 
   const endereco = pedido.receive_address;
 
-  enderecoDeReferenia = endereco.reference;
-  bairro = endereco.district;
-  cep = endereco.postal_code ? endereco.postal_code?.replace(/\D/g, "") : "0";
-  cidade = endereco.city;
-  complemento = endereco.complement;
-  rua = endereco.street_name;
-  numero = endereco.street_number;
-  idEstado = await buscarIdEstado({ estado: endereco.state });
+  enderecoDeReferenia = endereco?.reference;
+  bairro = endereco?.district;
+  cep = endereco?.postal_code ? endereco?.postal_code?.replace(/\D/g, "") : "0";
+  cidade = endereco?.city;
+  complemento = endereco?.complement;
+  rua = endereco?.street_name;
+  numero = endereco?.street_number;
+  idEstado = await buscarIdEstado({ estado: endereco?.state });
 
   if (!clienteExistenteTag) {
     const guid = uuidv4();
