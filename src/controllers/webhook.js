@@ -99,16 +99,18 @@ export const webhookController = async (req, res) => {
         valor: req.body.data.order_id,
       });
 
-      await atualizarValorTag({
-        chave: "Food99-status",
-        GUID: tag.GUIDIdentificacao,
-        valor: 922, // cancelado
-      });
+      if (tag) {
+        await atualizarValorTag({
+          chave: "Food99-status",
+          GUID: tag.GUIDIdentificacao,
+          valor: 922, // cancelado
+        });
 
-      await atualizarStatusPedido({
-        GUID: tag.GUIDIdentificacao,
-        IDStatusPedido: 50, // "cancelado"
-      });
+        await atualizarStatusPedido({
+          GUID: tag.GUIDIdentificacao,
+          IDStatusPedido: 50, // "cancelado"
+        });
+      }
     } catch (error) {
       console.error("erro ao cancelar pedido:", error);
     }
@@ -125,22 +127,24 @@ export const webhookController = async (req, res) => {
         valor: req.body.data.order_id,
       });
 
-      await atualizarValorTag({
-        chave: "Food99-status",
-        GUID: tag.GUIDIdentificacao,
-        valor: 600, // finalizado
-      });
+      if (tag) {
+        await atualizarValorTag({
+          chave: "Food99-status",
+          GUID: tag.GUIDIdentificacao,
+          valor: 600, // finalizado
+        });
 
-      const idCaixaAberto = await procurarCaixaAberto({
-        idPDV: env.CAIXA_PDV,
-      });
+        const idCaixaAberto = await procurarCaixaAberto({
+          idPDV: env.CAIXA_PDV,
+        });
 
-      await atualizarStatusPedido({
-        GUID: tag.GUIDIdentificacao,
-        IDStatusPedido: 40, // "finalizado"
-        dtPedidoFechamento: new Date(),
-        idCaixa: idCaixaAberto.IDCaixa,
-      });
+        await atualizarStatusPedido({
+          GUID: tag.GUIDIdentificacao,
+          IDStatusPedido: 40, // "finalizado"
+          dtPedidoFechamento: new Date(),
+          idCaixa: idCaixaAberto.IDCaixa,
+        });
+      }
     } catch (error) {
       console.error("erro ao finalizar pedido:", error);
     }
