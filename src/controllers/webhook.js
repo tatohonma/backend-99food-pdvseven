@@ -31,13 +31,26 @@ export const webhookController = async (req, res) => {
   if (req.body.type === "orderNew") {
     try {
       const response = await api.get("/order/order/detail", {
+        shopId: req.body.data.order_info.shop.app_shop_id,
         params: { order_id: req.body.data.order_id },
       });
 
-      console.log(`Recebendo pedido ${req.body.data.order_id} do 99Food\n`);
-      console.log(`Response: ${JSON.stringify(response.data)}\n`);
+      console.log(`Recebendo pedido ${req.body.data.order_id} do 99Food`);
+      console.dir(response.data, {
+        depth: null,
+        colors: true,
+      });
 
       const pedido = response.data.data;
+
+      if (!pedido) {
+        return res.status(400).send({
+          errno: response.data.errno,
+          errmsg: response.data.errmsg,
+          error: "Não foi possivel obter os detalhes do pedido do 99Food",
+        });
+      }
+
       const pedidoExistente = await verificarExistenciaPedido({
         orderId: pedido.order_id,
       });

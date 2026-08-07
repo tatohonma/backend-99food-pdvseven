@@ -13,7 +13,6 @@ const envSchema = z.object({
   CHAVE_ACESSO: z.string().default("9933"),
   APP_SECRET: z.string(),
   APP_ID: z.string(),
-  SHOP_ID: z.string().default("3"),
   WEB_HOOK_SECRET: z.string(),
 });
 

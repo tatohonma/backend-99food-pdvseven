@@ -112,6 +112,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
     { chave: "Food99-shortReference", valor: pedido.order_index },
     { chave: "Food99-Type", valor: pedido.delivery_type },
     { chave: "Food99-status", valor: pedido.status },
+    { chave: "Food99-app-shop-id", valor: pedido.shop.app_shop_id },
   ];
 
   for (const tag of tags) {
@@ -164,7 +165,13 @@ export const sincronisarStatus = async ({ pedido }) => {
     GUID: pedido.GUIDIdentificacao,
   });
 
+  const { Valor: shopId } = await procurarTagGUIDChave({
+    chave: "Food99-app-shop-id",
+    GUID: pedido.GUIDIdentificacao,
+  });
+
   const detalhesDoPedido = await api.get("/order/order/detail", {
+    shopId,
     params: { order_id: tag.Valor },
   });
 
@@ -183,6 +190,7 @@ export const sincronisarStatus = async ({ pedido }) => {
       console.log("Confirmando pedido - 99Food");
 
       const response = await api.post("/order/order/confirm", null, {
+        shopId,
         params: {
           order_id: tag.Valor,
         },
@@ -217,6 +225,7 @@ export const sincronisarStatus = async ({ pedido }) => {
       console.log("Pedido pronto - 99Food");
 
       await api.post("/order/order/ready", null, {
+        shopId,
         params: {
           order_id: tag.Valor,
         },
@@ -257,6 +266,7 @@ export const sincronisarStatus = async ({ pedido }) => {
         motivosCancelamento99Food[motivoCancelamento?.Nome] ?? 1080;
 
       await api.post("/order/order/cancel", null, {
+        shopId,
         params: {
           order_id: tag.Valor,
           reason_id: reasonId,
@@ -277,6 +287,7 @@ export const sincronisarStatus = async ({ pedido }) => {
       console.log("Finalizando pedido - 99Food");
 
       await api.post("/order/order/delivered", null, {
+        shopId,
         params: { order_id: tag.Valor },
       });
 

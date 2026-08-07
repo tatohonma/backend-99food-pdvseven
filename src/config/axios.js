@@ -18,25 +18,48 @@ export const api = axios.create({
   ],
 });
 
-let token = null;
-let expirationDate = null;
+const tokenCache = new Map();
 
-const refreshToken = async () => {
-  const url = `https://openapi.99food.com/v1/auth/authtoken/refresh?app_id=${env.APP_ID}&app_secret=${env.APP_SECRET}&app_shop_id=${env.SHOP_ID}`;
+async function refreshToken(shopId) {
+  const url = `https://openapi.99food.com/v1/auth/authtoken/refresh?app_id=${env.APP_ID}&app_secret=${env.APP_SECRET}&app_shop_id=${shopId}`;
+
   await axios.post(url);
 
-  const tokenUrl = `https://openapi.99food.com/v1/auth/authtoken/get?app_id=${env.APP_ID}&app_secret=${env.APP_SECRET}&app_shop_id=${env.SHOP_ID}`;
+  const tokenUrl = `https://openapi.99food.com/v1/auth/authtoken/get?app_id=${env.APP_ID}&app_secret=${env.APP_SECRET}&app_shop_id=${shopId}`;
+
   const { data } = await axios.post(tokenUrl);
 
-  token = data.data.auth_token;
-  expirationDate = addMinutes(new Date(), 10);
-};
+  tokenCache.set(shopId, {
+    token: data.data.auth_token,
+    expirationDate: addMinutes(new Date(), 10),
+  });
 
-api.interceptors.request.use(async (config) => {
-  if (!token || isBefore(Date.now(), expirationDate)) {
-    await refreshToken();
+  return data.data.auth_token;
+}
+
+async function getToken(shopId) {
+  const cached = tokenCache.get(shopId);
+
+  if (!cached || isBefore(cached.expirationDate, new Date())) {
+    return refreshToken(shopId);
   }
 
-  config.params.auth_token = token;
+  return cached.token;
+}
+
+api.interceptors.request.use(async (config) => {
+  const shopId = config.shopId;
+
+  if (!shopId) {
+    throw new Error("shopId não informado.");
+  }
+
+  const token = await getToken(shopId);
+
+  config.params = {
+    ...config.params,
+    auth_token: token,
+  };
+
   return config;
 });
