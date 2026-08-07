@@ -34,6 +34,9 @@ export const webhookController = async (req, res) => {
         params: { order_id: req.body.data.order_id },
       });
 
+      console.log(`Recebendo pedido ${req.body.data.order_id} do 99Food\n`);
+      console.log(`Response: ${JSON.stringify(response.data)}\n`);
+
       const pedido = response.data.data;
       const pedidoExistente = await verificarExistenciaPedido({
         orderId: pedido.order_id,
@@ -44,7 +47,10 @@ export const webhookController = async (req, res) => {
         return res.send({ errno: 0, errmsg: "ok" });
       }
 
-      console.log(`Adicionar pedido ${pedido.order_id}\n`, "[PEDIDO]:", pedido);
+      console.log(
+        `Adicionar pedido ${pedido.order_id}\n, order_id: ${req.body.data.order_id}`,
+      );
+
       const clientId = await adicionarCliente({ pedido });
       const insertedId = await adicionarPedido(pedido, clientId);
 
@@ -85,6 +91,11 @@ export const webhookController = async (req, res) => {
       console.log("------------------------------------------");
     } catch (error) {
       console.error("erro ao inserir pedido:", error);
+      return res.status(500).send({
+        errno: 1,
+        errmsg: "erro ao inserir pedido",
+        error: error.message,
+      });
     }
   }
 
@@ -113,6 +124,11 @@ export const webhookController = async (req, res) => {
       }
     } catch (error) {
       console.error("erro ao cancelar pedido:", error);
+      return res.status(500).send({
+        errno: 1,
+        errmsg: "erro ao cancelar pedido",
+        error: error.message,
+      });
     }
   }
 
@@ -147,6 +163,11 @@ export const webhookController = async (req, res) => {
       }
     } catch (error) {
       console.error("erro ao finalizar pedido:", error);
+      return res.status(500).send({
+        errno: 1,
+        errmsg: "erro ao finalizar pedido",
+        error: error.message,
+      });
     }
   }
 
