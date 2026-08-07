@@ -165,10 +165,12 @@ export const sincronisarStatus = async ({ pedido }) => {
     GUID: pedido.GUIDIdentificacao,
   });
 
-  const { Valor: shopId } = await procurarTagGUIDChave({
+  const tagShopId = await procurarTagGUIDChave({
     chave: "Food99-app-shop-id",
     GUID: pedido.GUIDIdentificacao,
   });
+
+  const shopId = tagShopId?.Valor;
 
   const detalhesDoPedido = await api.get("/order/order/detail", {
     shopId,
