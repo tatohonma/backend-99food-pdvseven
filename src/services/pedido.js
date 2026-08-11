@@ -11,6 +11,7 @@ import {
   procurarTagChaveValor,
 } from "../repositories/tag.js";
 import { api } from "../config/axios.js";
+import { calcularTotais } from "./calculo_pedido.js";
 
 const montarObservacaoCupom = (pedido) => {
   // const PROMO_TYPE_MAP = {
@@ -71,11 +72,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const idOrigemPedido = configuracoes.origemPedido.IDOrigemPedido;
   const idEntregador = configuracoes.entregador.IDEntregador;
 
-  const valorDesconto = pedido.promotions.reduce((sum, item) => {
-    return sum + (item?.promo_discount ?? 0) + (item?.shop_subside_price ?? 0);
-  }, 0);
-
-  const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
+  const { valorDesconto, taxaEntrega, valorTotal } = calcularTotais(pedido);
 
   const observacoes = "";
   const aplicarDesconto = valorDesconto > 0 ? 1 : 0;
@@ -83,10 +80,6 @@ export const adicionarPedido = async (pedido, idCliente) => {
   const taxaServicoPadrao = 0;
 
   const guid = uuidv4();
-
-  const outrasTaxas =
-    pedido.price?.others_fees?.service_price +
-      pedido.price?.others_fees?.meal_top_up_price ?? 0;
 
   const result = await criarPedido({
     aplicarDesconto,
@@ -100,9 +93,7 @@ export const adicionarPedido = async (pedido, idCliente) => {
     observacaoCupom,
     observacoes,
     valorDesconto: valorDesconto / 100,
-    valorTotal:
-      (pedido.price.order_price + outrasTaxas + taxaEntrega - valorDesconto) /
-      100,
+    valorTotal: valorTotal / 100,
     valorEntrega: taxaEntrega / 100,
     // IDRetornoSatVenda
   });

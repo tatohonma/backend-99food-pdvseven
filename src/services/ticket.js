@@ -1,3 +1,5 @@
+import { calcularTotais } from "./calculo_pedido.js";
+
 export const formatarTicket = ({ pedido, pagamento }) => {
   let ticket = ` *** 99Food #${pedido.remark} ***\r\n`;
   ticket += `Data do Pedido: ${new Date(pedido.create_time).toLocaleString()}\r\n`;
@@ -21,12 +23,8 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     });
   });
 
-  const outrasTaxas =
-    pedido.price?.others_fees?.service_price +
-      pedido.price?.others_fees?.meal_top_up_price ?? 0;
-  const valorDesconto =
-    pedido.price.items_discount + pedido.price.delivery_discount;
-  const taxaEntrega = pedido.price.store_charged_delivery_price;
+  const { outrasTaxas, valorDesconto, taxaEntrega, valorTotal } =
+    calcularTotais(pedido);
 
   ticket += `\r\nDescontos: R$ ${(valorDesconto / 100).toFixed(2)}\r\n`;
   ticket += `\r\nTaxa de Entrega: R$ ${(taxaEntrega / 100).toFixed(2)}\r\n`;
@@ -36,7 +34,7 @@ export const formatarTicket = ({ pedido, pagamento }) => {
     ticket += `  - ${pagamento.value / 100}`;
   }
 
-  ticket += `\r\nTotal: R$ ${(pedido.price.order_price + outrasTaxas + taxaEntrega - valorDesconto) / 100}\r\n`;
+  ticket += `\r\nTotal: R$ ${valorTotal / 100}\r\n`;
 
   return ticket;
 };

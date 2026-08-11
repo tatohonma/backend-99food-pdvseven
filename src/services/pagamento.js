@@ -1,5 +1,6 @@
 import { configuracoes } from "../config/pdv7.js";
 import { criarPedidoPagamento } from "../repositories/pedido_pagamento.js";
+import { calcularTotais } from "./calculo_pedido.js";
 
 export const adicionarPagamento = async ({ idPedido, pedido }) => {
   const mapTipoPagamento = {
@@ -8,29 +9,8 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
     212: configuracoes.tipoPagamento.pix,
   };
 
-  const outrasTaxas =
-    pedido.price?.others_fees?.service_price +
-      pedido.price?.others_fees?.meal_top_up_price ?? 0;
-  const valorDesconto =
-    pedido.price.items_discount + pedido.price.delivery_discount;
-  const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
-
-  const pagamentoPadrao =
-    pedido.price.real_pay_price ||
-    pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto;
-
-  const pagamentoDinheiro =
-    pedido.change_for ||
-    pedido.price.real_pay_price ||
-    pedido.price.order_price + taxaEntrega + outrasTaxas - valorDesconto;
-
-  // Valor do pagamento não gera troco caso pagamento seja realizado via 99food
-  const valorDoPagamento =
-    pedido.pay_channel === 150
-      ? pagamentoPadrao
-      : pedido.delivery_type === 1
-        ? pagamentoPadrao
-        : pagamentoDinheiro;
+  const { valorTotal } = calcularTotais(pedido);
+  const valorDoPagamento = valorTotal;
 
   const idTipoPagamento =
     pedido.delivery_type === 1
