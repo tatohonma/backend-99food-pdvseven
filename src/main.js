@@ -21,13 +21,18 @@ app.use((req, _, next) => {
 
 app.use("/api", router);
 
-app.listen(env.PORT, async () => {
+const iniciarServico = async () => {
   try {
     console.log("iniciando serviço...");
     await db.verifyConnection();
     await setup();
-    console.log(`integração PDV7 e 99Food disponível na porta: ${env.PORT}`);
+    app.listen(env.PORT, () => {
+      console.log(`integração PDV7 e 99Food disponível na porta: ${env.PORT}`);
+    });
   } catch (error) {
     console.error("erro ao iniciar serviço:", error);
+    process.exit(1);
   }
-});
+};
+
+iniciarServico();

@@ -16,15 +16,22 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
     pedido.delivery_type === 1 || pedido.pay_method === 1;
 
   const idTipoPagamento = pagamentoRealizadoNa99Food
-    ? configuracoes.tipoPagamento["99Food"].IDTipoPagamento
+    ? configuracoes.tipoPagamento["99Food"]?.IDTipoPagamento
     : mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento;
+
+  const tipoPagamentoOutros = configuracoes.tipoPagamento.outros;
+
+  if (!idTipoPagamento && !tipoPagamentoOutros) {
+    throw new Error(
+      "Nenhum tipo de pagamento configurado no PDV7 para o pedido 99Food",
+    );
+  }
 
   await criarPedidoPagamento({
     idPedido,
     valorDoPagamento: valorDoPagamento / 100,
     idGateway: null,
-    IDTipoPagamento:
-      idTipoPagamento ?? configuracoes.tipoPagamento.outros.IDTipoPagamento,
+    IDTipoPagamento: idTipoPagamento ?? tipoPagamentoOutros?.IDTipoPagamento,
     IDUsuario: configuracoes.usuario.IDUsuario,
   });
 
