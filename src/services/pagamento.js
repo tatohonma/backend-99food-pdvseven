@@ -12,10 +12,12 @@ export const adicionarPagamento = async ({ idPedido, pedido }) => {
   const { valorTotal } = calcularTotais(pedido);
   const valorDoPagamento = valorTotal;
 
-  const idTipoPagamento =
-    pedido.delivery_type === 1
-      ? configuracoes.tipoPagamento["99Food"].IDTipoPagamento
-      : mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento;
+  const pagamentoRealizadoNa99Food =
+    pedido.delivery_type === 1 || pedido.pay_method === 1;
+
+  const idTipoPagamento = pagamentoRealizadoNa99Food
+    ? configuracoes.tipoPagamento["99Food"].IDTipoPagamento
+    : mapTipoPagamento[pedido.pay_channel]?.IDTipoPagamento;
 
   await criarPedidoPagamento({
     idPedido,
