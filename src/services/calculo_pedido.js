@@ -3,11 +3,16 @@ export const calcularTotais = (pedido) => {
   const mealTopUpPrice = pedido.price?.others_fees?.meal_top_up_price ?? 0;
   const outrasTaxas = servicePrice + mealTopUpPrice;
 
-  const valorDesconto = (pedido.promotions ?? []).reduce((sum, item) => {
-    return (
-      sum + (item?.promo_discount ?? 0) + (item?.shop_subside_price ?? 0)
-    );
-  }, 0);
+  // const valorDesconto = (pedido.promotions ?? []).reduce((sum, item) => {
+  //   return (
+  //     sum + (item?.promo_discount ?? 0) + (item?.shop_subside_price ?? 0)
+  //   );
+  // }, 0);
+
+  const valorDesconto = (pedido.promotions ?? []).reduce(
+    (sum, item) => sum + (item?.promo_discount ?? 0),
+    0,
+  );
 
   const taxaEntrega = pedido.price?.store_charged_delivery_price ?? 0;
 

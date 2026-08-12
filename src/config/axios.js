@@ -31,7 +31,7 @@ async function refreshToken(shopId) {
 
   tokenCache.set(shopId, {
     token: data.data.auth_token,
-    expirationDate: addMinutes(new Date(), 10),
+    expirationDate: addMinutes(new Date(), 5),
   });
 
   return data.data.auth_token;
