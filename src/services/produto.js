@@ -44,7 +44,9 @@ export const adicionarPedidoProduto = async (
   const idPDV = await SetupRepository.obterIdPdv();
 
   const idUsuario = 1;
-  const notas = [produto.observacao].filter(Boolean).join(" ");
+  const notas = item?.remark
+    ? item.remark + " \n" + [produto.observacao].filter(Boolean).join(" ")
+    : [produto.observacao].filter(Boolean).join(" ");
   const pedidoProduto = criarPedidoProduto({
     idPDV: idPDV.Valor,
     notas,
@@ -54,7 +56,6 @@ export const adicionarPedidoProduto = async (
     idProduto: produto.idProduto,
     price: item.sku_price / 100,
     quantity: item.amount,
-    notas: item?.remark ?? "",
   });
 
   return pedidoProduto;
