@@ -1,7 +1,7 @@
 import { calcularTotais } from "./calculo_pedido.js";
 
 export const formatarTicket = ({ pedido, pagamento }) => {
-  let ticket = ` *** 99Food #${pedido.remark} ***\r\n`;
+  let ticket = ` *** 99Food #${pedido.order_index} ***\r\n`;
   ticket += `Data do Pedido: ${new Date(pedido.create_time).toLocaleString()}\r\n`;
   ticket += `Cliente: ${pedido.receive_address?.first_name}\r\n`;
   ticket += `Telefone: (${pedido.receive_address?.phone?.substring(0, 2)}) ${pedido.receive_address?.phone?.substring(2)}\r\n`;
@@ -9,7 +9,13 @@ export const formatarTicket = ({ pedido, pagamento }) => {
   ticket += `Cidade: ${pedido.receive_address?.city} - ${pedido.receive_address?.state}\r\n`;
   ticket += `CEP: ${pedido.receive_address?.postal_code}\r\n`;
   ticket += `Referência: ${pedido.receive_address?.reference}\r\n`;
-  ticket += `Complemento: ${pedido.receive_address?.complement}\r\n\r\n`;
+  ticket += `Complemento: ${pedido.receive_address?.complement}\r\n`;
+
+  if (pedido.remark) {
+    ticket += `Observação: ${pedido.remark}\r\n`;
+  }
+
+  ticket += `\r\n`;
 
   ticket += `Itens:\r\n`;
   pedido.order_items.forEach((item) => {

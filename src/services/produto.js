@@ -54,6 +54,7 @@ export const adicionarPedidoProduto = async (
     idProduto: produto.idProduto,
     price: item.sku_price / 100,
     quantity: item.amount,
+    notas: item?.remark ?? "",
   });
 
   return pedidoProduto;
