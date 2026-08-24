@@ -43,7 +43,7 @@ export const webhookController = async (req, res) => {
 
       const pedido = response.data.data;
 
-      if (!pedido) {
+      if (!pedido.order_id) {
         return res.status(400).send({
           errno: response.data.errno,
           errmsg: response.data.errmsg,
