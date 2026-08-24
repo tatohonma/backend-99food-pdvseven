@@ -9,9 +9,11 @@ export const syncController = async (req, res) => {
 
   if (pedidos) {
     for (const pedido of pedidos) {
-      sincronisarStatus({
+      await sincronisarStatus({
         pedido,
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
