@@ -1,6 +1,6 @@
 {
   "name": "backend-99food-pdvseven",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
