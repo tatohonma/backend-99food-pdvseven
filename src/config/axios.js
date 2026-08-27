@@ -5,7 +5,6 @@ import JSONbig from "json-bigint";
 
 export const api = axios.create({
   baseURL: "https://openapi.99food.com/v1",
-
   transformResponse: [
     (data) => {
       if (!data) return data;
@@ -22,64 +21,80 @@ export const api = axios.create({
 const tokenCache = new Map();
 const tokenRefreshPromises = new Map();
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function refreshToken(shopId) {
   console.log(`[TOKEN] Renovando token - shopId: ${shopId}`);
 
-  const url =
-    `https://openapi.99food.com/v1/auth/authtoken/refresh` +
-    `?app_id=${env.APP_ID}` +
-    `&app_secret=${env.APP_SECRET}` +
-    `&app_shop_id=${shopId}`;
-
-  await axios.post(url);
+  await axios.post(
+    "https://openapi.99food.com/v1/auth/authtoken/refresh",
+    null,
+    {
+      params: {
+        app_id: env.APP_ID,
+        app_secret: env.APP_SECRET,
+        app_shop_id: shopId,
+      },
+    },
+  );
 
   console.log(`[TOKEN] Refresh realizado - shopId: ${shopId}`);
 
-  const tokenUrl =
-    `https://openapi.99food.com/v1/auth/authtoken/get` +
-    `?app_id=${env.APP_ID}` +
-    `&app_secret=${env.APP_SECRET}` +
-    `&app_shop_id=${shopId}`;
+  const maxAttempts = 5;
 
-  const { data } = await axios.post(tokenUrl);
-
-  const token = data?.data?.auth_token;
-
-  console.log(
-    `[TOKEN] Token recebido - shopId: ${shopId} - possui token: ${!!token}`,
-  );
-
-  if (!token) {
-    throw new Error(
-      `A 99Food retornou auth_token vazio para o shopId ${shopId}`,
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    console.log(
+      `[TOKEN] Buscando token - shopId: ${shopId} - tentativa ${attempt}/${maxAttempts}`,
     );
+
+    const { data } = await axios.post(
+      "https://openapi.99food.com/v1/auth/authtoken/get",
+      null,
+      {
+        params: {
+          app_id: env.APP_ID,
+          app_secret: env.APP_SECRET,
+          app_shop_id: shopId,
+        },
+      },
+    );
+
+    const token = data?.data?.auth_token;
+
+    console.log(
+      `[TOKEN] Resultado - shopId: ${shopId} - possui token: ${!!token}`,
+    );
+
+    if (token) {
+      tokenCache.set(shopId, {
+        token,
+        expirationDate: addMinutes(new Date(), 5),
+      });
+
+      console.log(`[TOKEN] Token obtido com sucesso - shopId: ${shopId}`);
+
+      return token;
+    }
+
+    if (attempt < maxAttempts) {
+      await sleep(attempt * 500);
+    }
   }
 
-  tokenCache.set(shopId, {
-    token,
-    expirationDate: addMinutes(new Date(), 5),
-  });
-
-  return token;
+  throw new Error(
+    `Não foi possível obter auth_token válido para o shopId ${shopId}`,
+  );
 }
 
 async function getToken(shopId) {
   const cached = tokenCache.get(shopId);
 
-  /**
-   * Token ainda válido.
-   */
   if (cached && !isBefore(cached.expirationDate, new Date())) {
     console.log(`[TOKEN] Cache hit - shopId: ${shopId}`);
 
     return cached.token;
   }
 
-  /**
-   * Já existe uma renovação acontecendo.
-   *
-   * Em vez de iniciar outra, aguardamos a mesma Promise.
-   */
   const existingRefresh = tokenRefreshPromises.get(shopId);
 
   if (existingRefresh) {
@@ -88,11 +103,6 @@ async function getToken(shopId) {
     return existingRefresh;
   }
 
-  /**
-   * Nenhum refresh acontecendo.
-   *
-   * Criamos uma única Promise de renovação.
-   */
   console.log(`[TOKEN] Iniciando novo refresh - shopId: ${shopId}`);
 
   const refreshPromise = refreshToken(shopId);
@@ -102,12 +112,6 @@ async function getToken(shopId) {
   try {
     return await refreshPromise;
   } finally {
-    /**
-     * Quando terminar, removemos a Promise.
-     *
-     * Se tiver dado erro ou sucesso, uma próxima requisição
-     * poderá tentar renovar novamente.
-     */
     tokenRefreshPromises.delete(shopId);
   }
 }
@@ -121,9 +125,6 @@ api.interceptors.request.use(async (config) => {
 
   const token = await getToken(shopId);
 
-  /**
-   * Nunca deixa uma requisição sair sem auth_token.
-   */
   if (!token) {
     throw new Error(`auth_token vazio para o shopId ${shopId}`);
   }
