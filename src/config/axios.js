@@ -1,6 +1,5 @@
 import axios from "axios";
 import { env } from "./env.js";
-import { addMinutes, isBefore } from "date-fns";
 import JSONbig from "json-bigint";
 
 export const api = axios.create({
@@ -18,14 +17,14 @@ export const api = axios.create({
   ],
 });
 
-const tokenCache = new Map();
+const tokenStore = new Map();
 const tokenRefreshPromises = new Map();
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const getStoredToken = (shopId) => tokenStore.get(shopId);
+const setStoredToken = (shopId, token) => tokenStore.set(shopId, token);
+const removeStoredToken = (shopId) => tokenStore.delete(shopId);
 
-async function refreshToken(shopId) {
-  console.log(`[TOKEN] Renovando token - shopId: ${shopId}`);
-
+const refreshToken = async (shopId) => {
   await axios.post(
     "https://openapi.99food.com/v1/auth/authtoken/refresh",
     null,
@@ -38,75 +37,35 @@ async function refreshToken(shopId) {
     },
   );
 
-  console.log(`[TOKEN] Refresh realizado - shopId: ${shopId}`);
-
-  const maxAttempts = 5;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(
-      `[TOKEN] Buscando token - shopId: ${shopId} - tentativa ${attempt}/${maxAttempts}`,
-    );
-
-    const { data } = await axios.post(
-      "https://openapi.99food.com/v1/auth/authtoken/get",
-      null,
-      {
-        params: {
-          app_id: env.APP_ID,
-          app_secret: env.APP_SECRET,
-          app_shop_id: shopId,
-        },
+  const { data } = await axios.post(
+    "https://openapi.99food.com/v1/auth/authtoken/get",
+    null,
+    {
+      params: {
+        app_id: env.APP_ID,
+        app_secret: env.APP_SECRET,
+        app_shop_id: shopId,
       },
-    );
-
-    const token = data?.data?.auth_token;
-
-    console.log(
-      `[TOKEN] Resultado - shopId: ${shopId} - possui token: ${!!token}`,
-    );
-
-    if (token) {
-      tokenCache.set(shopId, {
-        token,
-        expirationDate: addMinutes(new Date(), 5),
-      });
-
-      console.log(`[TOKEN] Token obtido com sucesso - shopId: ${shopId}`);
-
-      return token;
-    }
-
-    if (attempt < maxAttempts) {
-      await sleep(attempt * 500);
-    }
-  }
-
-  throw new Error(
-    `Não foi possível obter auth_token válido para o shopId ${shopId}`,
+    },
   );
-}
 
-async function getToken(shopId) {
-  const cached = tokenCache.get(shopId);
+  const token = data?.data?.auth_token;
 
-  if (cached && !isBefore(cached.expirationDate, new Date())) {
-    console.log(`[TOKEN] Cache hit - shopId: ${shopId}`);
-
-    return cached.token;
+  if (!token) {
+    throw new Error(
+      `A 99Food retornou auth_token vazio para o shopId ${shopId}, \nresposta completa: ${JSON.stringify(data)}`,
+    );
   }
 
+  setStoredToken(shopId, token);
+  return token;
+};
+
+const getNewToken = async (shopId) => {
   const existingRefresh = tokenRefreshPromises.get(shopId);
-
-  if (existingRefresh) {
-    console.log(`[TOKEN] Aguardando refresh existente - shopId: ${shopId}`);
-
-    return existingRefresh;
-  }
-
-  console.log(`[TOKEN] Iniciando novo refresh - shopId: ${shopId}`);
+  if (existingRefresh) return existingRefresh;
 
   const refreshPromise = refreshToken(shopId);
-
   tokenRefreshPromises.set(shopId, refreshPromise);
 
   try {
@@ -114,19 +73,16 @@ async function getToken(shopId) {
   } finally {
     tokenRefreshPromises.delete(shopId);
   }
-}
+};
 
 api.interceptors.request.use(async (config) => {
   const shopId = config.shopId;
+  if (!shopId) throw new Error("shopId não informado.");
 
-  if (!shopId) {
-    throw new Error("shopId não informado.");
-  }
-
-  const token = await getToken(shopId);
+  let token = getStoredToken(shopId);
 
   if (!token) {
-    throw new Error(`auth_token vazio para o shopId ${shopId}`);
+    token = await getNewToken(shopId);
   }
 
   config.params = {
@@ -134,9 +90,53 @@ api.interceptors.request.use(async (config) => {
     auth_token: token,
   };
 
-  console.log(
-    `[API] Requisição - shopId: ${shopId} - auth_token presente: ${!!token}`,
-  );
-
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+
+    const shopId = originalRequest.shopId;
+
+    if (!shopId) {
+      return Promise.reject(error);
+    }
+
+    const status = error.response?.status;
+
+    if (status !== 401) {
+      return Promise.reject(error);
+    }
+
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    const failedToken = originalRequest.params?.auth_token;
+    const currentToken = getStoredToken(shopId);
+
+    originalRequest._retry = true;
+
+    if (currentToken && failedToken && currentToken !== failedToken) {
+      return api(originalRequest);
+    }
+
+    try {
+      if (!tokenRefreshPromises.has(shopId)) {
+        removeStoredToken(shopId);
+      }
+
+      await getNewToken(shopId);
+
+      return api(originalRequest);
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
+    }
+  },
+);
