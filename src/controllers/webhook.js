@@ -21,6 +21,7 @@ import { env } from "../config/env.js";
 import { api } from "../config/axios.js";
 import { obterProdutoTaxaDeServico99Food } from "../repositories/produto.js";
 import { procurarCaixaAberto } from "../repositories/caixa.js";
+import { logErro } from "../utils/log_erro.js";
 
 export const webhookController = async (req, res) => {
   const token = req.query.token;
@@ -103,7 +104,7 @@ export const webhookController = async (req, res) => {
       console.log(ticket);
       console.log("------------------------------------------");
     } catch (error) {
-      console.error("erro ao inserir pedido:", error);
+      logErro("erro ao inserir pedido", error);
       return res.status(500).send({
         errno: 1,
         errmsg: "erro ao inserir pedido",
@@ -136,7 +137,7 @@ export const webhookController = async (req, res) => {
         });
       }
     } catch (error) {
-      console.error("erro ao cancelar pedido:", error);
+      logErro("erro ao cancelar pedido", error);
       return res.status(500).send({
         errno: 1,
         errmsg: "erro ao cancelar pedido",
@@ -175,7 +176,7 @@ export const webhookController = async (req, res) => {
         });
       }
     } catch (error) {
-      console.error("erro ao finalizar pedido:", error);
+      logErro("erro ao finalizar pedido", error);
       return res.status(500).send({
         errno: 1,
         errmsg: "erro ao finalizar pedido",

@@ -2,8 +2,24 @@ import axios from "axios";
 import { env } from "./env.js";
 import JSONbig from "json-bigint";
 
+const TIMEOUT_MS = 10000;
+const MAX_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 1000;
+
+// Conexão nunca estabelecida: seguro repetir qualquer método
+const ERROS_SEM_CONEXAO = ["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN"];
+// Conexão estabelecida e interrompida: só repete métodos idempotentes
+const ERROS_DE_REDE = [
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "ECONNABORTED",
+  "EPIPE",
+  "ERR_SOCKET_CONNECTION_TIMEOUT",
+];
+
 export const api = axios.create({
   baseURL: "https://openapi.99food.com/v1",
+  timeout: TIMEOUT_MS,
   transformResponse: [
     (data) => {
       if (!data) return data;
@@ -17,6 +33,19 @@ export const api = axios.create({
   ],
 });
 
+const deveTentarNovamente = (error) => {
+  const method = error.config?.method?.toLowerCase();
+  const idempotente = method === "get";
+  const code = error.code;
+  const status = error.response?.status;
+
+  if (ERROS_SEM_CONEXAO.includes(code)) return true;
+  if (!idempotente) return false;
+  if (ERROS_DE_REDE.includes(code)) return true;
+  if (!error.response && /socket hang up/i.test(error.message)) return true;
+  return status >= 500 && status < 600;
+};
+
 const tokenStore = new Map();
 const tokenRefreshPromises = new Map();
 
@@ -29,6 +58,7 @@ const refreshToken = async (shopId) => {
     "https://openapi.99food.com/v1/auth/authtoken/refresh",
     null,
     {
+      timeout: TIMEOUT_MS,
       params: {
         app_id: env.APP_ID,
         app_secret: env.APP_SECRET,
@@ -41,6 +71,7 @@ const refreshToken = async (shopId) => {
     "https://openapi.99food.com/v1/auth/authtoken/get",
     null,
     {
+      timeout: TIMEOUT_MS,
       params: {
         app_id: env.APP_ID,
         app_secret: env.APP_SECRET,
@@ -106,6 +137,20 @@ api.interceptors.response.use(
 
     if (!shopId) {
       return Promise.reject(error);
+    }
+
+    if (deveTentarNovamente(error)) {
+      originalRequest._tentativas = (originalRequest._tentativas ?? 0) + 1;
+
+      if (originalRequest._tentativas <= MAX_RETRIES) {
+        const espera =
+          RETRY_BASE_DELAY_MS * 2 ** (originalRequest._tentativas - 1);
+        console.warn(
+          `Tentativa ${originalRequest._tentativas}/${MAX_RETRIES} em ${espera}ms: ${error.code ?? error.message} ${originalRequest.method?.toUpperCase()} ${originalRequest.url}`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, espera));
+        return api(originalRequest);
+      }
     }
 
     const status = error.response?.status;
