@@ -14,6 +14,7 @@ const envSchema = z.object({
   APP_SECRET: z.string(),
   APP_ID: z.string(),
   WEB_HOOK_SECRET: z.string(),
+  INTERVALO_RECONFERENCIA_MS: z.coerce.number().default(120000),
 });
 
 const _env = envSchema.safeParse(process.env);

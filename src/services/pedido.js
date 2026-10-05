@@ -114,6 +114,8 @@ export const adicionarPedido = async (pedido, idCliente) => {
   return result;
 };
 
+// Retorna true quando o pedido ficou em dia com a 99Food (nada a fazer ou ação
+// concluída) e false quando a ação não foi aceita e deve ser tentada de novo.
 export const sincronisarStatus = async ({ pedido }) => {
   // 100	Order created
   // 200	Order accepted (The store sent confirmation)
@@ -207,7 +209,7 @@ export const sincronisarStatus = async ({ pedido }) => {
         });
       }
 
-      return;
+      return [0, 12010].includes(response.data.errno);
     }
 
     if (statusPedidoNoPdv === "enviado") {
@@ -226,7 +228,7 @@ export const sincronisarStatus = async ({ pedido }) => {
         valor: 400,
       });
 
-      return;
+      return true;
     }
 
     if (statusPedidoNoPdv === "cancelado") {
@@ -269,7 +271,7 @@ export const sincronisarStatus = async ({ pedido }) => {
         valor: 921,
       });
 
-      return;
+      return true;
     }
 
     if (statusPedidoNoPdv === "finalizado" && tipoEntrega === "local") {
@@ -286,11 +288,11 @@ export const sincronisarStatus = async ({ pedido }) => {
         valor: 600,
       });
 
-      return;
+      return true;
     }
   }
 
-  return;
+  return true;
 };
 
 export const verificarExistenciaPedido = async ({ orderId }) => {
